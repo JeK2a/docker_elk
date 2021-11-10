@@ -1,5 +1,5 @@
 .idea/*
-logstash/logstash.conf
+logstash/logstash_urls.conf
 .idea/misc.xml
 .idea/modules.xml
 .idea/runConfigurations.xml
