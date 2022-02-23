@@ -1,0 +1,142 @@
+version: '3.2'
+
+services:
+  elasticsearch:
+    build:
+      context: elasticsearch/
+    volumes:
+#      - hunspell-volume:/usr/share/elasticsearch/config/hunspell/
+#      - /var/v:/usr/share/elasticsearch/config/analysis
+      - /var/v:/usr/share/elasticsearch/config/analysis
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
+    ports:
+      - "19200:9200"
+      - "19300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx2048m -Xms2048m"
+      ELASTIC_PASSWORD: admin1234
+      discovery.type: single-node
+    networks:
+      - elk_stack
+
+  ent-search:
+    image: docker.elastic.co/enterprise-search/enterprise-search:7.14.2
+    restart: unless-stopped
+    depends_on:
+      - "elasticsearch"
+    environment:
+#      - "JAVA_OPTS=-Xms512m -Xmx512m"
+#      - "ENT_SEARCH_DEFAULT_PASSWORD=admin1234"
+#      - "elasticsearch.username=elastic"
+#      - "elasticsearch.password=admin1234"
+#      - "elasticsearch.host=http://domain:19200"
+#      - "allow_es_settings_modification=true"
+#      - "secret_management.encryption_keys=[623ff9b0ada4fc03b4e17b8076c57a2e8b34f5d996fc74471fb5116c9abd3a10]"
+#      - "elasticsearch.startup_retry.interval=15"
+
+      - "ent_search.auth.source=standard"
+      - "elasticsearch.username=elastic"
+      - "elasticsearch.password=gc094eVCpkdp7NNIRweo"
+      - "elasticsearch.host=http://domain:19200"
+      - "allow_es_settings_modification=true"
+      - "secret_management.encryption_keys=623ff9b0ada4fc03b4e17b8076c57a2e8b34f5d996fc74471fb5116c9abd3a10"
+      - "ENT_SEARCH_DEFAULT_PASSWORD=gc094eVCpkdp7NNIRweo"
+    ports:
+      - 13002:3002
+    networks:
+      - elk_stack
+
+
+  kibana:
+#    image: docker.elastic.co/kibana/kibana:7.14.2
+    build:
+      context: kibana/
+    restart: unless-stopped
+    depends_on:
+      - "elasticsearch"
+      - "ent-search"
+    ports:
+      - 15601:5601
+    environment:
+      ELASTICSEARCH_HOSTS: http://domain:19200
+      ENTERPRISESEARCH_HOST: http://domain:13002
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: admin1234
+    networks:
+      - elk_stack
+
+
+#    restart: always
+
+#        docker run \
+#        -p 13002:3002 \
+#        -e elasticsearch.host='http://domain:19200' \
+#        -e elasticsearch.username=elastic \
+#        -e elasticsearch.password=admin1234 \
+#        -e allow_es_settings_modification=true \
+#        -e secret_management.encryption_keys='[623ff9b0ada4fc03b4e17b8076c57a2e8b34f5d996fc74471fb5116c9abd3a10]' \
+#        docker.elastic.co/enterprise-search/enterprise-search:7.14.2
+
+#  hunspell:
+#    image: insekticid/elasticsearch-hunspell
+#    build: .
+#    depends_on:
+#      - elasticsearch
+#    networks:
+#      - elk_stack
+#    volumes:
+#      - hunspell-volume:/usr/share/elasticsearch/config/hunspell/
+#    entrypoint: ru
+
+#  logstash:
+#    build:
+#      context: logstash/
+#    ports:
+#      - "5000:5000"
+#      - "5044:5044"
+#      - "9600:9600"
+#    environment:
+#      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+#    networks:
+#      - elk_stack
+#    depends_on:
+#      - elasticsearch
+
+#  kibana:
+#    build:
+#      context: kibana/
+#    ports:
+#      - "5601:5601"
+#    networks:
+#      - elk_stack
+#    depends_on:
+#      - elasticsearch
+#
+#  kibana:
+#    image: docker.elastic.co/kibana/kibana:7.14.2
+#    restart: unless-stopped
+#    depends_on:
+#      - "elasticsearch"
+#      - "ent-search"
+#    ports:
+#      - 15601:5601
+#    environment:
+#      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+#      ENTERPRISESEARCH_HOST: http://domain:13002
+#      ELASTICSEARCH_USERNAME: elastic
+#      ELASTICSEARCH_PASSWORD: admin123
+#    networks:
+#      - elk_stack
+
+
+
+networks:
+  elk_stack:
+    driver: bridge
+
+volumes:
+  elasticsearch:
+    driver: local
+

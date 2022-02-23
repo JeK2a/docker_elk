@@ -6,3 +6,7 @@ xpack.monitoring.ui.container.elasticsearch.enabled: true
 
 elasticsearch.username: elastic
 elasticsearch.password: pass1234
+
+xpack.encryptedSavedObjects.encryptionKey: 90a32aeda8ad5b82a72d5921f3ca437b
+xpack.reporting.encryptionKey: 0e4281875522a7e2436436c46c265beb
+xpack.security.encryptionKey: 61e879bd9e28fb720579a16a99de7fd9

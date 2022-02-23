@@ -5,3 +5,9 @@ network.host: 0.0.0.0
 xpack.license.self_generated.type: basic
 xpack.security.enabled: true
 xpack.monitoring.collection.enabled: true
+
+xpack.security.authc:
+  anonymous:
+    username: anonymous_user
+    roles: role1, role2
+    authz_exception: true
